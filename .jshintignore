@@ -1,0 +1,4 @@
+node_modules
+jsdoc
+thirdparty
+tests/thirdparty
