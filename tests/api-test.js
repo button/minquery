@@ -6,6 +6,19 @@ const MinQuery = require('../index');
 
 describe('minquery', () => {
 
+  let nockBack;
+
+  before(() => {
+    nockBack = nock.back;
+
+    nockBack.setMode('lockdown');
+    nockBack.fixtures = __dirname + '/fixtures';
+  });
+
+  after(() => {
+    nock.enableNetConnect();
+  });
+
   describe('#constructor', () => {
 
     it('fails when key and keyFile are missing', () => {
@@ -55,7 +68,6 @@ describe('minquery', () => {
   describe('#createTable', () => {
 
     let client;
-    let nockBack;
 
     const ignoreOauthNockOpts = {
       before: (scope) => {
@@ -78,11 +90,6 @@ describe('minquery', () => {
         email: 'fake-user@staging.iam.gserviceaccount.com',
         projectId: 'fake-project'
       });
-
-      nockBack = nock.back;
-
-      nockBack.setMode('lockdown');
-      nockBack.fixtures = __dirname + '/fixtures';
     });
 
     it('works for good request', (done) => {
@@ -111,7 +118,6 @@ describe('minquery', () => {
   describe('#insert', () => {
 
     let client;
-    let nockBack;
 
     const ignoreOauthNockOpts = {
       before: (scope) => {
@@ -134,11 +140,6 @@ describe('minquery', () => {
         email: 'mikey-test-02@fake-project.iam.gserviceaccount.com',
         projectId: 'fake-project'
       });
-
-      nockBack = nock.back;
-
-      nockBack.setMode('record');
-      nockBack.fixtures = __dirname + '/fixtures';
     });
 
     it('for all good rows', (done) => {
