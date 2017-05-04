@@ -128,7 +128,7 @@ describe('minquery', function () {
 
     beforeEach(function () {
       client = new MinQuery({
-        keyFile: `${__dirname}/../mikey-test-02.pem`,
+        keyFile: `${__dirname}/fixtures/fake-key.pem`,
         email: 'mikey-test-02@fake-project.iam.gserviceaccount.com',
         projectId: 'fake-project',
       });
