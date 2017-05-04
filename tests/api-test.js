@@ -1,5 +1,3 @@
-
-
 const assert = require('assert');
 const nock = require('nock');
 const MinQuery = require('../index');
@@ -46,19 +44,19 @@ describe('minquery', function () {
     });
 
     it('succeeds when all required fields are given (key)', function () {
-      new MinQuery({
+      assert(new MinQuery({
         key: 'fake-key',
         email: 'fake-email',
         projectId: 'fake-project',
-      });
+      }));
     });
 
     it('succeeds when all required fields are given (keyFile)', function () {
-      new MinQuery({
+      assert(new MinQuery({
         keyFile: `${__dirname}/fixtures/fake-key.pem`,
         email: 'fake-email',
         projectId: 'fake-project',
-      });
+      }));
     });
   });
 
