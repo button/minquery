@@ -15,6 +15,9 @@
   "scripts": {
     "test": "mocha --recursive tests/"
   },
+  "engines": {
+    "node": ">=6.10.0"
+  },
   "author": "Button <info@usebutton.com>",
   "license": "MIT",
   "dependencies": {
