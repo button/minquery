@@ -1,11 +1,11 @@
-'use strict';
+
 
 const fs = require('fs');
 const request = require('google-oauth-jwt').requestWithJWT();
 
 const SCOPES = [
   'https://www.googleapis.com/auth/bigquery',
-  'https://www.googleapis.com/auth/bigquery.insertdata'
+  'https://www.googleapis.com/auth/bigquery.insertdata',
 ];
 
 /** Base error class. */
@@ -80,15 +80,15 @@ class MinQuery {
 
     return new Promise((resolve, reject) => {
       request({
-        method: method,
+        method,
         body: data,
         json: true,
-        url: url,
+        url,
         jwt: {
           email: this.email,
           key: this.key,
-          scopes: SCOPES
-        }
+          scopes: SCOPES,
+        },
       }, (err, res) => {
         if (!err && res && res.body.error) {
           err = new ProtocolError(res.body.error.message || 'API response error', res);
@@ -123,13 +123,13 @@ class MinQuery {
 
     const data = {
       schema: {
-        fields: fields
+        fields,
       },
       tableReference: {
         projectId: this.projectId,
         datasetId: dataset,
-        tableId: tableName
-      }
+        tableId: tableName,
+      },
     };
 
     if (options.expirationDate) {
@@ -172,7 +172,7 @@ class MinQuery {
         !!options.skipInvalidRows : true,
       ignoreUnknownValues: options.ignoreUnknownValues !== undefined ?
         !!options.ignoreUnknownValues : true,
-      rows: rowData
+      rows: rowData,
     };
     return this._request('POST', `/datasets/${dataset}/tables/${tableName}/insertAll`, data);
   }
