@@ -1,72 +1,66 @@
-'use strict';
-
 const assert = require('assert');
 const nock = require('nock');
 const MinQuery = require('../index');
 
-describe('minquery', () => {
-
+describe('minquery', function () {
   let nockBack;
 
-  before(() => {
+  before(function () {
     nockBack = nock.back;
 
     nockBack.setMode('lockdown');
-    nockBack.fixtures = __dirname + '/fixtures';
+    nockBack.fixtures = `${__dirname}/fixtures`;
   });
 
-  after(() => {
+  after(function () {
     nock.enableNetConnect();
   });
 
-  describe('#constructor', () => {
-
-    it('fails when key and keyFile are missing', () => {
+  describe('#constructor', function () {
+    it('fails when key and keyFile are missing', function () {
       assert.throws(() => new MinQuery(),
         /Must specify `options.key` or `options.keyFile`/);
     });
 
-    it('fails when both key and keyFile are given', () => {
+    it('fails when both key and keyFile are given', function () {
       assert.throws(() => new MinQuery({
         key: 'fake-key',
-        keyFile: 'fake-key-file.txt'
+        keyFile: 'fake-key-file.txt',
       }), /Specify only one of `options.key` or `options.keyFile`/);
     });
 
-    it('fails when email is missing', () => {
+    it('fails when email is missing', function () {
       assert.throws(() => new MinQuery({
         key: 'fake-key',
-        projectId: 'fake-project'
+        projectId: 'fake-project',
       }), /Must specify `options.email`/);
     });
 
-    it('fails when projectId is missing', () => {
+    it('fails when projectId is missing', function () {
       assert.throws(() => new MinQuery({
         key: 'fake-key',
-        email: 'fake-email'
+        email: 'fake-email',
       }), /Must specify `options.projectId`/);
     });
 
-    it('succeeds when all required fields are given (key)', () => {
-      new MinQuery({
+    it('succeeds when all required fields are given (key)', function () {
+      assert(new MinQuery({
         key: 'fake-key',
         email: 'fake-email',
-        projectId: 'fake-project'
-      });
+        projectId: 'fake-project',
+      }));
     });
 
-    it('succeeds when all required fields are given (keyFile)', () => {
-      new MinQuery({
-        keyFile: __dirname + '/fixtures/fake-key.pem',
+    it('succeeds when all required fields are given (keyFile)', function () {
+      assert(new MinQuery({
+        keyFile: `${__dirname}/fixtures/fake-key.pem`,
         email: 'fake-email',
-        projectId: 'fake-project'
-      });
+        projectId: 'fake-project',
+      }));
     });
-
   });
 
-  describe('#createTable', () => {
-
+  describe('#createTable', function () {
     let client;
 
     const ignoreOauthNockOpts = {
@@ -81,25 +75,25 @@ describe('minquery', () => {
           }
           return body;
         };
-      }
+      },
     };
 
-    beforeEach(() => {
+    beforeEach(function () {
       client = new MinQuery({
-        keyFile: __dirname + '/fixtures/fake-key.pem',
+        keyFile: `${__dirname}/fixtures/fake-key.pem`,
         email: 'fake-user@staging.iam.gserviceaccount.com',
-        projectId: 'fake-project'
+        projectId: 'fake-project',
       });
     });
 
-    it('works for good request', (done) => {
+    it('works for good request', function (done) {
       const schema = [
         {
           name: 'flavor',
           type: 'STRING',
           mode: 'REQUIRED',
-          description: 'Ice cream flavor.'
-        }
+          description: 'Ice cream flavor.',
+        },
       ];
 
       nockBack('create-table-good.json', ignoreOauthNockOpts, (nockDone) => {
@@ -112,11 +106,9 @@ describe('minquery', () => {
         });
       });
     });
-
   });
 
-  describe('#insert', () => {
-
+  describe('#insert', function () {
     let client;
 
     const ignoreOauthNockOpts = {
@@ -131,23 +123,23 @@ describe('minquery', () => {
           }
           return body;
         };
-      }
+      },
     };
 
-    beforeEach(() => {
+    beforeEach(function () {
       client = new MinQuery({
-        keyFile: __dirname + '/../mikey-test-02.pem',
+        keyFile: `${__dirname}/fixtures/fake-key.pem`,
         email: 'mikey-test-02@fake-project.iam.gserviceaccount.com',
-        projectId: 'fake-project'
+        projectId: 'fake-project',
       });
     });
 
-    it('for all good rows', (done) => {
+    it('for all good rows', function (done) {
       nockBack('insert-good.json', ignoreOauthNockOpts, (nockDone) => {
         const rows = [
           { flavor: 'mint' },
           { flavor: 'bubblegum' },
-          { flavor: 'eggplant' }
+          { flavor: 'eggplant' },
         ];
 
         client.insert('staging', 'faketable', rows).then((response) => {
@@ -162,16 +154,16 @@ describe('minquery', () => {
       });
     });
 
-    it('with invalid row when ignored', (done) => {
+    it('with invalid row when ignored', function (done) {
       nockBack('insert-invalid-row-ignored.json', ignoreOauthNockOpts, (nockDone) => {
         const rows = [
           { flavor: 'mint' },
           { flavor: 'bubblegum' },
-          { topping: 'eggplant' }
+          { topping: 'eggplant' },
         ];
 
         const options = {
-          skipInvalidRows: true
+          skipInvalidRows: true,
         };
 
         client.insert('staging', 'faketable', rows, options).then(() => {
@@ -184,16 +176,16 @@ describe('minquery', () => {
       });
     });
 
-    it('with invalid row when not ignored', (done) => {
+    it('with invalid row when not ignored', function (done) {
       nockBack('insert-invalid-row-rejected.json', ignoreOauthNockOpts, (nockDone) => {
         const rows = [
           { flavor: 'mint' },
           { flavor: 'bubblegum' },
-          { topping: 'eggplant' }
+          { topping: 'eggplant' },
         ];
 
         const options = {
-          skipInvalidRows: false
+          skipInvalidRows: false,
         };
 
         client.insert('staging', 'faketable', rows, options).then(() => {
@@ -206,16 +198,16 @@ describe('minquery', () => {
       });
     });
 
-    it('with invalid value when ignored', (done) => {
+    it('with invalid value when ignored', function (done) {
       nockBack('insert-invalid-value-ignored.json', ignoreOauthNockOpts, (nockDone) => {
         const rows = [
           { flavor: 'mint' },
           { flavor: 'bubblegum' },
-          { flavor: 'eggplant', topping: 'cilantro' }
+          { flavor: 'eggplant', topping: 'cilantro' },
         ];
 
         const options = {
-          ignoreUnknownValues: true
+          ignoreUnknownValues: true,
         };
 
         client.insert('staging', 'faketable', rows, options).then(() => {
@@ -228,16 +220,16 @@ describe('minquery', () => {
       });
     });
 
-    it('with invalid value when not ignored', (done) => {
+    it('with invalid value when not ignored', function (done) {
       nockBack('insert-invalid-value-rejected.json', ignoreOauthNockOpts, (nockDone) => {
         const rows = [
           { flavor: 'mint' },
           { flavor: 'bubblegum' },
-          { flavor: 'eggplant', topping: 'cilantro' }
+          { flavor: 'eggplant', topping: 'cilantro' },
         ];
 
         const options = {
-          ignoreUnknownValues: false
+          ignoreUnknownValues: false,
         };
 
         client.insert('staging', 'faketable', rows, options).then(() => {
@@ -249,7 +241,5 @@ describe('minquery', () => {
         });
       });
     });
-
   });
-
 });
