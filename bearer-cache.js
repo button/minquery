@@ -70,7 +70,7 @@ class BearerCache {
     });
   }
 
-  await() {
+  wait() {
     return this.fetcher;
   }
 }

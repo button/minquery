@@ -1,6 +1,4 @@
 const { createSign } = require('crypto');
-const { readFileSync } = require('fs');
-const qs = require('querystring');
 
 const request = require('./request');
 
@@ -41,7 +39,7 @@ const getBearer = async ({ bearerCache, key, email, scopes }) => {
   }
 
   if (bearerCache.isFetching()) {
-    return bearerCache.await();
+    return bearerCache.wait();
   }
 
   bearerCache.setFetching();
