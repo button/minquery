@@ -14,13 +14,14 @@ const request = async (options) =>
     _request(options, (err, res) => {
       if (err) {
         reject(err);
+        return;
       }
 
       // Instead of using the `json` property in the request options, which
       // impacts both request and response behavior, simply parse the response
       // if it's declared to be JSON.
       if (
-        res.headers['content-type'].startsWith('application/json;') &&
+        res.headers['content-type'].startsWith('application/json') &&
         !options.json
       ) {
         res.body = JSON.parse(res.body);
@@ -30,6 +31,7 @@ const request = async (options) =>
         reject(
           new ProtocolError(res.body.error.message || 'API response error', res)
         );
+        return;
       }
 
       resolve(res);
