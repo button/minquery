@@ -24,7 +24,7 @@
   "author": "Button <info@usebutton.com>",
   "license": "MIT",
   "dependencies": {
-    "google-oauth-jwt": "^0.2.0"
+    "request": "^2.88.2"
   },
   "devDependencies": {
     "eslint": "^3.19.0",
