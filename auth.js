@@ -15,7 +15,7 @@ const EXP_SECS = 60 * 60;
 const LIFETIME_SECS = 60 * 55;
 
 const toB64 = (o) => Buffer.from(JSON.stringify(o)).toString('base64');
-const sign = (b, key) => createSign('RSA-SHA256').update(b).sign(key);
+const sign = (b, k) => createSign('RSA-SHA256').update(b).sign(k);
 
 const HEADER = toB64({ alg: 'RS256', typ: 'JWT' });
 

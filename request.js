@@ -16,7 +16,7 @@ const request = async (options) =>
         res.body = JSON.parse(res.body);
       }
 
-      if (res && res.body.error) {
+      if (res.body.error) {
         reject(
           new ProtocolError(res.body.error.message || 'API response error', res)
         );
