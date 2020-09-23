@@ -70,7 +70,7 @@ class BearerCache {
   }
 
   setWarm(token, lifetimeSecs) {
-    assert(this.isFetching());
+    assert(this.isFetching(), 'Cache must be fetching to set to warm');
 
     this.token = token;
     this.expiresAt = Date.now() + (lifetimeSecs * 1000);
@@ -83,7 +83,7 @@ class BearerCache {
   }
 
   setCold(reason) {
-    assert(this.isFetching() || this.isWarm());
+    assert(this.isFetching(), 'Cache must be fetching to set to cold');
 
     this.token = null;
     this.expiresAt = null;
@@ -96,7 +96,7 @@ class BearerCache {
   }
 
   setFetching() {
-    assert(this.isCold());
+    assert(this.isCold(), 'Cache must be cold to set to fetching');
 
     this.fetcher = new Promise((resolve, reject) => {
       this.resolver = resolve;
@@ -105,12 +105,12 @@ class BearerCache {
   }
 
   value() {
-    assert(this.isWarm());
+    assert(this.isWarm(), 'Cache must be warm to return a value');
     return this.token;
   }
 
   wait() {
-    assert(this.isFetching());
+    assert(this.isFetching(), 'Cache must be fetching to wait on a value');
     return this.fetcher;
   }
 }
