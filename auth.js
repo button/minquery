@@ -45,12 +45,13 @@ const getBearer = async ({ bearerCache, key, email, scopes }) => {
   bearerCache.setFetching();
 
   try {
-    const jwt = getJWT({ key, email, scopes });
-
     const res = await request({
       url: TOKEN_URL,
       method: 'POST',
-      form: { grant_type: GRANT_TYPE, assertion: jwt },
+      form: {
+        grant_type: GRANT_TYPE,
+        assertion: getJWT({ key, email, scopes }),
+      },
     });
 
     bearerCache.setWarm(res.body.access_token, LIFETIME_SECS);

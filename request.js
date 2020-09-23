@@ -2,6 +2,13 @@ const _request = require('request');
 
 const { ProtocolError } = require('./errors');
 
+/**
+ * Light wrapper around request.js. Returns a Promise and handles a couple
+ * Google-specific protocol interpretations.
+ *
+ * @param  {Object} options Forwarded to request.js
+ * @return {Promise} resolves with the request.js response
+ */
 const request = async (options) =>
   new Promise((resolve, reject) => {
     _request(options, (err, res) => {
@@ -9,9 +16,12 @@ const request = async (options) =>
         reject(err);
       }
 
+      // Instead of using the `json` property in the request options, which
+      // impacts both request and response behavior, simply parse the response
+      // if it's declared to be JSON.
       if (
         res.headers['content-type'].startsWith('application/json;') &&
-        typeof res.body === 'string'
+        !options.json
       ) {
         res.body = JSON.parse(res.body);
       }
