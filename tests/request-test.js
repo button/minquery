@@ -92,4 +92,24 @@ describe('request', function () {
 
     scope.done();
   });
+
+  it('rejects with invalid JSON responses', async function () {
+    const scope = nock('https://site.com')
+      .post('/bloop')
+      .reply(
+        200,
+        '{ "bad": json }',
+        { 'Content-Type': 'application/json' }
+      );
+
+    await assert.rejects(
+      () => request({ url: 'https://site.com/bloop', method: 'post' }),
+      {
+        name: 'ProtocolError',
+        message: 'Unexpected token j in JSON at position 9',
+      }
+    );
+
+    scope.done();
+  });
 });

@@ -25,10 +25,16 @@ const request = async (options) =>
       // a JSON response. Accordingly, this condition attempts to parse a JSON
       // response, but only if it wasn't already parsed by request.js.
       if (
-        contentType && contentType.startsWith('application/json') &&
+        contentType &&
+        contentType.startsWith('application/json') &&
         !options.json
       ) {
-        res.body = JSON.parse(res.body);
+        try {
+          res.body = JSON.parse(res.body);
+        } catch (e) {
+          reject(new ProtocolError(e.message), res);
+          return;
+        }
       }
 
       if (res.body.error) {
