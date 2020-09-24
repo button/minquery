@@ -17,11 +17,15 @@ const request = async (options) =>
         return;
       }
 
-      // Instead of using the `json` property in the request options, which
-      // impacts both request and response behavior, simply parse the response
-      // if it's declared to be JSON.
+      const contentType = res.headers['content-type'];
+
+      // If options.json=true, then request.js will automatically parse response
+      // bodies as JSON. Some calls may not be able to pass options.json=true
+      // (for example, if the request body is not JSON), but may still receive
+      // a JSON response. Accordingly, this condition attempts to parse a JSON
+      // response, but only if it wasn't already parsed by request.js.
       if (
-        res.headers['content-type'].startsWith('application/json') &&
+        contentType && contentType.startsWith('application/json') &&
         !options.json
       ) {
         res.body = JSON.parse(res.body);
