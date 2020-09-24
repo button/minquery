@@ -39,7 +39,8 @@ const STATES = {
 class BearerCache {
   constructor() {
     this.token = null;
-    this.expiresAt = null;
+    this.lifetime = null;
+    this.lifeStart = null;
     this.fetcher = null;
     this.resolver = null;
     this.rejecter = null;
@@ -50,8 +51,11 @@ class BearerCache {
       return STATES.FETCHING;
     }
 
-    if (this.token && this.expiresAt > Date.now()) {
-      return STATES.WARM;
+    if (this.token) {
+      const [currentLife] = process.hrtime(this.lifeStart);
+      if (currentLife < this.lifetime) {
+        return STATES.WARM;
+      }
     }
 
     return STATES.COLD;
@@ -69,13 +73,14 @@ class BearerCache {
     return this.state() === STATES.FETCHING;
   }
 
-  setWarm(token, lifetimeSecs) {
+  setWarm(token, lifetime) {
     assert(token, 'Must specify a token to set to warm');
-    assert(lifetimeSecs > 0, 'Must specify non-zero lifetime of the token');
+    assert(lifetime > 0, 'Must specify non-zero lifetime of the token');
     assert(this.isFetching(), 'Cache must be fetching to set to warm');
 
     this.token = token;
-    this.expiresAt = Date.now() + (lifetimeSecs * 1000);
+    this.lifetime = lifetime;
+    this.lifeStart = process.hrtime();
 
     this.resolver(token);
 
@@ -89,7 +94,8 @@ class BearerCache {
     assert(this.isFetching(), 'Cache must be fetching to set to cold');
 
     this.token = null;
-    this.expiresAt = null;
+    this.lifetime = null;
+    this.lifeStart = null;
 
     this.rejecter(reason);
 
