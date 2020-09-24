@@ -55,8 +55,10 @@ const getBearer = async ({ bearerCache, key, email, scopes }) => {
       },
     });
 
-    // Ensure our lifetime never goes below the value reported by the API. We
-    // expect to always be able to apply 5 minutes of padding.
+    // Ensure our lifetime, with padding, never goes below 0. If it does, fall
+    // back to the lifetime reported by the server. We'll likely start seeing a
+    // small number of auth failures. We always expect to be able to apply
+    // padding.
     let lifetime = res.body.expires_in - EXP_PADDING_SECS;
     if (lifetime <= 0) {
       lifetime = res.body.expires_in;
