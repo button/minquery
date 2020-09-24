@@ -3,14 +3,14 @@ const assert = require('assert');
 
 const BearerCache = require('../bearer-cache');
 
-describe.only('bearer-cache', function () {
-  beforeEach(function() {
+describe('bearer-cache', function () {
+  beforeEach(function () {
     this.sandbox = sinon.createSandbox();
-  })
+  });
 
-  afterEach(function() {
+  afterEach(function () {
     this.sandbox.restore();
-  })
+  });
 
   describe('cold', function () {
     beforeEach(function () {
