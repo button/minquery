@@ -76,10 +76,7 @@ describe('request', function () {
   it('rejects with protocol-level errors', async function () {
     const scope = nock('https://localhost')
       .post('/bloop')
-      .reply(
-        500,
-        { error: { message: 'blooped the big one' } }
-      );
+      .reply(500, { error: { message: 'blooped the big one' } });
 
     await assert.rejects(
       () => request({ url: 'https://localhost/bloop', method: 'post' }),
@@ -95,11 +92,7 @@ describe('request', function () {
   it('rejects with invalid JSON responses', async function () {
     const scope = nock('https://localhost')
       .post('/bloop')
-      .reply(
-        200,
-        '{ "bad": json }',
-        { 'Content-Type': 'application/json' }
-      );
+      .reply(200, '{ "bad": json }', { 'Content-Type': 'application/json' });
 
     await assert.rejects(
       () => request({ url: 'https://localhost/bloop', method: 'post' }),
