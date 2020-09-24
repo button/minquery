@@ -70,6 +70,8 @@ class BearerCache {
   }
 
   setWarm(token, lifetimeSecs) {
+    assert(token, 'Must specify a token to set to warm');
+    assert(lifetimeSecs, 'Must specify non-zero lifetime of the token');
     assert(this.isFetching(), 'Cache must be fetching to set to warm');
 
     this.token = token;
@@ -83,6 +85,7 @@ class BearerCache {
   }
 
   setCold(reason) {
+    assert(reason, 'Must specify a reason to set to cold');
     assert(this.isFetching(), 'Cache must be fetching to set to cold');
 
     this.token = null;

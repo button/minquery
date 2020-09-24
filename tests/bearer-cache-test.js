@@ -1,8 +1,17 @@
+const sinon = require('sinon');
 const assert = require('assert');
 
 const BearerCache = require('../bearer-cache');
 
-describe('bearer-cache', function () {
+describe.only('bearer-cache', function () {
+  beforeEach(function() {
+    this.sandbox = sinon.createSandbox();
+  })
+
+  afterEach(function() {
+    this.sandbox.restore();
+  })
+
   describe('cold', function () {
     beforeEach(function () {
       this.cache = new BearerCache();
@@ -32,14 +41,14 @@ describe('bearer-cache', function () {
     });
 
     it('cannot transition to warm', function () {
-      assert.throws(() => this.cache.setWarm(), {
+      assert.throws(() => this.cache.setWarm('bloop', 1), {
         name: 'AssertionError [ERR_ASSERTION]',
         message: 'Cache must be fetching to set to warm',
       });
     });
 
     it('cannot transition to cold', function () {
-      assert.throws(() => this.cache.setCold(), {
+      assert.throws(() => this.cache.setCold(new Error('bloop')), {
         name: 'AssertionError [ERR_ASSERTION]',
         message: 'Cache must be fetching to set to cold',
       });
@@ -118,6 +127,7 @@ describe('bearer-cache', function () {
 
   describe('warm', function () {
     beforeEach(function () {
+      this.clock = this.sandbox.useFakeTimers();
       this.cache = new BearerCache();
       this.cache.setFetching();
       this.cache.setWarm('bloop', 1);
@@ -146,17 +156,19 @@ describe('bearer-cache', function () {
     });
 
     it('cannot transition to warm', function () {
-      assert.throws(() => this.cache.setWarm(), {
+      assert.throws(() => this.cache.setWarm('bloop', 1), {
         name: 'AssertionError [ERR_ASSERTION]',
         message: 'Cache must be fetching to set to warm',
       });
     });
 
-    it('can transition to cold', async function () {
+    it('can transition to cold', function () {
       assert(this.cache.isWarm());
 
-      await new Promise(r => setTimeout(r, 1000));
+      this.clock.tick(500);
+      assert(this.cache.isWarm());
 
+      this.clock.tick(500);
       assert(this.cache.isCold());
     });
   });
