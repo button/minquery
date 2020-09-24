@@ -17,7 +17,7 @@ describe('request', function () {
   it('makes a network request and returns a promise', async function () {
     const scope = nock('https://localhost')
       .post('/bloop')
-      .reply(200, { status: 'ok' }, { 'Content-Type': 'application/json' });
+      .reply(200, { status: 'ok' });
 
     const res = await request({
       url: 'https://localhost/bloop',
@@ -31,7 +31,7 @@ describe('request', function () {
   it('doesnt parse a JSON response body if handled by request.js', async function () {
     const scope = nock('https://localhost')
       .post('/bloop')
-      .reply(200, { status: 'ok' }, { 'Content-Type': 'application/json' });
+      .reply(200, { status: 'ok' });
 
     const res = await request({
       url: 'https://localhost/bloop',
@@ -62,7 +62,7 @@ describe('request', function () {
   it('resolves with http-level errors', async function () {
     const scope = nock('https://localhost')
       .post('/bloop')
-      .reply(500, { status: 'error' }, { 'Content-Type': 'application/json' });
+      .reply(500, { status: 'error' });
 
     const res = await request({
       url: 'https://localhost/bloop',
@@ -78,8 +78,7 @@ describe('request', function () {
       .post('/bloop')
       .reply(
         500,
-        { error: { message: 'blooped the big one' } },
-        { 'Content-Type': 'application/json' }
+        { error: { message: 'blooped the big one' } }
       );
 
     await assert.rejects(
