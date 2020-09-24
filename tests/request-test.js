@@ -15,12 +15,12 @@ describe('request', function () {
   });
 
   it('makes a network request and returns a promise', async function () {
-    const scope = nock('https://site.com')
+    const scope = nock('https://localhost')
       .post('/bloop')
       .reply(200, { status: 'ok' }, { 'Content-Type': 'application/json' });
 
     const res = await request({
-      url: 'https://site.com/bloop',
+      url: 'https://localhost/bloop',
       method: 'post',
     });
 
@@ -29,12 +29,12 @@ describe('request', function () {
   });
 
   it('doesnt parse a JSON response body if handled by request.js', async function () {
-    const scope = nock('https://site.com')
+    const scope = nock('https://localhost')
       .post('/bloop')
       .reply(200, { status: 'ok' }, { 'Content-Type': 'application/json' });
 
     const res = await request({
-      url: 'https://site.com/bloop',
+      url: 'https://localhost/bloop',
       method: 'post',
       json: true,
     });
@@ -44,12 +44,12 @@ describe('request', function () {
   });
 
   it('rejects with networking-level errors', async function () {
-    const scope = nock('https://site.com')
+    const scope = nock('https://localhost')
       .post('/bloop')
       .replyWithError('blooped the big one');
 
     await assert.rejects(
-      () => request({ url: 'https://site.com/bloop', method: 'post' }),
+      () => request({ url: 'https://localhost/bloop', method: 'post' }),
       {
         name: 'Error',
         message: 'blooped the big one',
@@ -60,12 +60,12 @@ describe('request', function () {
   });
 
   it('resolves with http-level errors', async function () {
-    const scope = nock('https://site.com')
+    const scope = nock('https://localhost')
       .post('/bloop')
       .reply(500, { status: 'error' }, { 'Content-Type': 'application/json' });
 
     const res = await request({
-      url: 'https://site.com/bloop',
+      url: 'https://localhost/bloop',
       method: 'post',
     });
 
@@ -74,7 +74,7 @@ describe('request', function () {
   });
 
   it('rejects with protocol-level errors', async function () {
-    const scope = nock('https://site.com')
+    const scope = nock('https://localhost')
       .post('/bloop')
       .reply(
         500,
@@ -83,7 +83,7 @@ describe('request', function () {
       );
 
     await assert.rejects(
-      () => request({ url: 'https://site.com/bloop', method: 'post' }),
+      () => request({ url: 'https://localhost/bloop', method: 'post' }),
       {
         name: 'ProtocolError',
         message: 'blooped the big one',
@@ -94,7 +94,7 @@ describe('request', function () {
   });
 
   it('rejects with invalid JSON responses', async function () {
-    const scope = nock('https://site.com')
+    const scope = nock('https://localhost')
       .post('/bloop')
       .reply(
         200,
@@ -103,7 +103,7 @@ describe('request', function () {
       );
 
     await assert.rejects(
-      () => request({ url: 'https://site.com/bloop', method: 'post' }),
+      () => request({ url: 'https://localhost/bloop', method: 'post' }),
       {
         name: 'ProtocolError',
         message: 'Unexpected token j in JSON at position 9',
