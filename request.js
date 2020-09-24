@@ -32,7 +32,7 @@ const request = async (options) =>
         try {
           res.body = JSON.parse(res.body);
         } catch (e) {
-          reject(new ProtocolError(e.message), res);
+          reject(new ProtocolError(e.message, res));
           return;
         }
       }
