@@ -6,13 +6,14 @@ const TOKEN_URL = 'https://oauth2.googleapis.com/token';
 const GRANT_TYPE = 'urn:ietf:params:oauth:grant-type:jwt-bearer';
 
 // When requesting a token, we specify 60 minutes. When setting the local
-// lifetime of a token, we specify 55 minutes. This simple mechanism ought to
-// work us around a race that could occur if we used the same number for both
-// values: our local lifetime check could pass, but still be rejected by
-// Google's API if we're operating right around the expiry epoch.
+// lifetime of a token, we specify 5 minutes less than the lifetime reported by
+// the server (so we expect a local lifetime of 55 minutes). This simple
+// mechanism ought to work us around a race that could occur if we used the same
+// number for both values: our local lifetime check could pass, but still be
+// rejected by Google's API if we're operating right around the expiry epoch.
 //
 const EXP_SECS = 60 * 60;
-const LIFETIME_SECS = 60 * 55;
+const EXP_PADDING_SECS = 60 * 5;
 
 const toB64 = (o) => Buffer.from(JSON.stringify(o)).toString('base64');
 const sign = (b, k) => createSign('RSA-SHA256').update(b).sign(k);
@@ -54,7 +55,14 @@ const getBearer = async ({ bearerCache, key, email, scopes }) => {
       },
     });
 
-    bearerCache.setWarm(res.body.access_token, LIFETIME_SECS);
+    // Ensure our lifetime never goes below the value reported by the API. We
+    // expect to always be able to apply 5 minutes of padding.
+    let lifetime = res.body.expires_in - EXP_PADDING_SECS;
+    if (lifetime <= 0) {
+      lifetime = res.body.expires_in;
+    }
+
+    bearerCache.setWarm(res.body.access_token, lifetime);
     return bearerCache.value();
   } catch (e) {
     bearerCache.setCold(e);

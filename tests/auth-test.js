@@ -53,7 +53,7 @@ describe('auth', function () {
           assertion:
             'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJkYW5pZWxAaG9oby5jb20iLCJzY29wZSI6ImJsb29wIGJsZWVwIiwiYXVkIjoiaHR0cHM6Ly9vYXV0aDIuZ29vZ2xlYXBpcy5jb20vdG9rZW4iLCJleHAiOjM2MDAsImlhdCI6MH0=.inXy76Q7+cBzbygepCDcPDE254HmU1iOhxhi/hRWm5rkVW8EckMek5qkC90eUY08QZLL1d3UXiZf75iJXC8jtIMLNX+NZmp9fTPFvRkWtxhhvwGLxBzZr42yv06rHKH3+WizGiooz/u9aOpplnVFreZsXrxJyo/6WfD6+lnr3yBDcK0h2C0UUNfA7/8ELJ43pM+tHrGHk0z15M0d8MUpm1vUTh7s4cjCM8cYc/s8KndMIaJftjA+kZzYmQCv5C7/YRSQByHYNa25wIpi50wssnuxxej6GBOXShAURXxgdrZIqNpIIi+E3zTU12vVheq5UoysZyp7J5g1e+Ych06U7g==',
         })
-        .reply(200, { access_token: 'token' });
+        .reply(200, { access_token: 'token', expires_in: 3600 });
 
       const p1 = getBearer(this.arguments);
       const p2 = getBearer(this.arguments);
@@ -80,7 +80,7 @@ describe('auth', function () {
           assertion:
             'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJkYW5pZWxAaG9oby5jb20iLCJzY29wZSI6ImJsb29wIGJsZWVwIiwiYXVkIjoiaHR0cHM6Ly9vYXV0aDIuZ29vZ2xlYXBpcy5jb20vdG9rZW4iLCJleHAiOjY5MDAsImlhdCI6MzMwMH0=.RQWl/KelPs6bxk+r5gWFMXz8zwf6q8XoHsffkRAquonLbjIx2oZOqjtizHo0yY2/w1HuanRfR1rgfl6qMiRyxtoiMPt69e3oPrjqpuTxK0sg9MtGPvPGMS0SdvEVKAPOUrpnIuDhx7NvVIzNKV3YNRYUKynCQisDPHJvsno3pW3HRWT9K1PNh1ZtRVp1KLWWqSppK+TUh/cbzgljDT0KCCuxxvC8x2vv7HVjZOX2W7XJPdiDqWAUKgk1rez8iM7oupKu7ZK6T2iR/OFb6BfM10u/AXv0OoOOwhWcP5nr+UvTXmfZsbBb8mrQXyTGJMa/YUdbSi3R9x3MneaGlVMGRA==',
         })
-        .reply(200, { access_token: 'refresh' });
+        .reply(200, { access_token: 'refresh', expires_in: 3600 });
 
       const p4 = getBearer(this.arguments);
       const p5 = getBearer(this.arguments);
@@ -114,11 +114,36 @@ describe('auth', function () {
       // Now try to get back on the rails with a successful fetch
       const retryScope = nock('https://oauth2.googleapis.com')
         .post('/token')
-        .reply(200, { access_token: 'retry' });
+        .reply(200, { access_token: 'retry', expires_in: 3600 });
 
       assert.deepStrictEqual(await getBearer(this.arguments), 'retry');
 
       retryScope.done();
+    });
+
+    it('doesnt pad if expires_in is too low', async function () {
+      const scope = nock('https://oauth2.googleapis.com')
+        .post('/token')
+        .reply(200, { access_token: 'token', expires_in: 5 });
+
+      assert.deepStrictEqual(await getBearer(this.arguments), 'token');
+
+      scope.done();
+
+      // Now that the cache is warm, we can get the value without extra network
+      // hops
+      assert.deepStrictEqual(await getBearer(this.arguments), 'token');
+
+      // Now let the token expire
+      this.clock.tick(5 * 1000);
+
+      const refreshScope = nock('https://oauth2.googleapis.com')
+        .post('/token')
+        .reply(200, { access_token: 'refresh', expires_in: 3600 });
+
+      assert.deepStrictEqual(await getBearer(this.arguments), 'refresh');
+
+      refreshScope.done();
     });
   });
 });
