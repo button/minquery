@@ -1,6 +1,6 @@
 {
   "name": "@button/minquery",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Minimal client for Google Bigquery",
   "repository": {
     "type": "git",
@@ -19,12 +19,12 @@
     "test": "mocha --recursive tests/"
   },
   "engines": {
-    "node": ">=6.10.0"
+    "node": ">=10.0.0"
   },
   "author": "Button <info@usebutton.com>",
   "license": "MIT",
   "dependencies": {
-    "google-oauth-jwt": "^0.2.0"
+    "request": "^2.88.2"
   },
   "devDependencies": {
     "eslint": "^3.19.0",
@@ -33,6 +33,7 @@
     "eslint-plugin-mocha": "^4.9.0",
     "mocha": "^3.1.0",
     "mocha-eslint": "^3.0.1",
-    "nock": "^8.1.0"
+    "nock": "^8.1.0",
+    "sinon": "^9.0.3"
   }
 }

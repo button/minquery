@@ -1,36 +1,13 @@
 const fs = require('fs');
-const request = require('google-oauth-jwt').requestWithJWT();
+
+const request = require('./request');
+const { getBearer } = require('./auth');
+const BearerCache = require('./bearer-cache');
 
 const SCOPES = [
   'https://www.googleapis.com/auth/bigquery',
   'https://www.googleapis.com/auth/bigquery.insertdata',
 ];
-
-/** Base error class. */
-class MinQueryError extends Error {
-  constructor(message) {
-    super(message);
-    this.name = this.constructor.name;
-    this.message = message;
-    if (typeof Error.captureStackTrace === 'function') {
-      Error.captureStackTrace(this, this.constructor);
-    } else {
-      this.stack = (new Error(message)).stack;
-    }
-  }
-}
-
-/** Any sort of response error. */
-class ResponseError extends MinQueryError {
-  constructor(message, response) {
-    super(message);
-    this.response = response;
-  }
-}
-
-/** Bigquery API returned an error. */
-class ProtocolError extends ResponseError {
-}
 
 class MinQuery {
 
@@ -71,33 +48,25 @@ class MinQuery {
 
     this.email = options.email;
     this.projectId = options.projectId;
+    this.bearerCache = new BearerCache();
   }
 
-  _request(method, path, data) {
+  async _request(method, path, data) {
     const url = `https://www.googleapis.com/bigquery/v2/projects/${this.projectId}${path}`;
 
-    return new Promise((resolve, reject) => {
-      request({
-        method,
-        body: data,
-        json: true,
-        url,
-        jwt: {
-          email: this.email,
-          key: this.key,
-          scopes: SCOPES,
-        },
-      }, (err, res) => {
-        if (!err && res && res.body.error) {
-          err = new ProtocolError(res.body.error.message || 'API response error', res);
-        }
+    const bearer = await getBearer({
+      bearerCache: this.bearerCache,
+      key: this.key,
+      email: this.email,
+      scopes: SCOPES,
+    });
 
-        if (err) {
-          reject(err);
-        } else {
-          resolve(res);
-        }
-      });
+    return request({
+      method,
+      body: data,
+      json: true,
+      url,
+      auth: { bearer },
     });
   }
 
