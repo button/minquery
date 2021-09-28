@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.0.3 (2021-09-28)
+
+* Fixup TypeError with empty response bodies.
+
 ## v1.0.2 (2020-09-23)
 
 * Updated recommended NodeJS version to 10.0.0 or greater.
