@@ -104,4 +104,22 @@ describe('request', function () {
 
     scope.done();
   });
+
+  it('gracefully handles empty json responses', async function () {
+    const scope = nock('https://localhost')
+      .post('/bloop', { bloop: true })
+      .reply(200);
+
+    const res = await request({
+      url: 'https://localhost/bloop',
+      json: true,
+      body: { bloop: true },
+      method: 'post',
+    });
+
+    assert.deepStrictEqual(res.statusCode, 200);
+    assert.deepStrictEqual(res.body, undefined);
+
+    scope.done();
+  });
 });

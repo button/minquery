@@ -37,7 +37,7 @@ const request = async (options) =>
         }
       }
 
-      if (res.body.error) {
+      if (res.body && res.body.error) {
         reject(
           new ProtocolError(res.body.error.message || 'API response error', res)
         );

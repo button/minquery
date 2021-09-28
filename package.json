@@ -1,6 +1,6 @@
 {
   "name": "@button/minquery",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Minimal client for Google Bigquery",
   "repository": {
     "type": "git",
